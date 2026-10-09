@@ -619,7 +619,7 @@ class PrescricaoState(rx.State):
 
         self.salvando = False
         if isinstance(resultado, dict) and resultado.get("success") is False:
-            self.erro_form = _texto(resultado.get("message"), "O Xano não confirmou o salvamento da prescrição.")
+            self.erro_form = "Não foi possível confirmar o salvamento da prescrição. Confira o histórico antes de tentar novamente."
             return
         self.sucesso = "Prescrição salva e disponível para a secretaria enviar por e-mail."
         self.conteudo_doc = ""
@@ -692,7 +692,7 @@ class PrescricaoState(rx.State):
 
         self.enviando_email_id = ""
         if isinstance(resultado, dict) and resultado.get("success") is False:
-            self.erro_lista = _texto(resultado.get("message"), "O Xano não confirmou o envio da prescrição.")
+            self.erro_lista = "Não foi possível confirmar o envio da prescrição. Confira o histórico antes de tentar novamente."
             return
         self.sucesso = "Prescrição enviada ao e-mail cadastrado do paciente."
         yield rx.toast.success(self.sucesso, position="top-center")

@@ -12,7 +12,7 @@ LOGIN_FALLBACK_MESSAGE = "Email ou senha inválidos."
 SESSION_EXPIRED_MESSAGE = "Sessão expirada. Entre novamente."
 UNEXPECTED_RESPONSE_MESSAGE = "Resposta inesperada do servidor."
 LOGIN_EMPTY_MESSAGE = "O servidor não retornou o token de acesso. Contate o administrador do sistema."
-SENDGRID_AUTHORIZATION_INVALID_MESSAGE = "A autorização do SendGrid é inválida, expirou ou foi revogada."
+SENDGRID_AUTHORIZATION_INVALID_MESSAGE = "Não foi possível enviar o e-mail agora. Tente novamente mais tarde."
 TOKEN_KEYS = ("authToken", "auth_token", "token", "jwt", "access_token")
 SENSITIVE_USER_KEYS = ("password", "senha")
 
@@ -36,7 +36,7 @@ class SessionExpired(ApiError):
 def _base_url(variable: str = "XANO_API_URL") -> str:
     url = os.getenv(variable, "").strip().rstrip("/")
     if not url:
-        raise ApiError(f"Configuração da API ausente. Defina {variable} no arquivo .env.")
+        raise ApiError("O serviço está indisponível no momento. Tente novamente mais tarde.")
     return url
 
 
@@ -86,7 +86,7 @@ def _raise_for_status(
     if status < 400:
         return
     if status == 403:
-        raise ApiError(_server_message(response) or "Você não tem permissão para esta ação.", status)
+        raise ApiError("Você não tem permissão para esta ação.", status)
     if status >= 500:
         server_message = _server_message(response) if expose_server_error_message else None
         normalized_message = (server_message or "").casefold()
@@ -99,10 +99,13 @@ def _raise_for_status(
             "O servidor está indisponível no momento. Tente novamente em instantes.",
             status,
         )
-    raise ApiError(
-        _server_message(response) or f"Não foi possível concluir a solicitação (HTTP {status}).",
-        status,
-    )
+    messages = {
+        400: "Não foi possível processar os dados enviados. Confira os campos e tente novamente.",
+        404: "O item solicitado não foi encontrado.",
+        409: "Não foi possível concluir a solicitação por causa de um conflito nos dados.",
+        422: "Os dados enviados não passaram pela validação. Confira os campos.",
+    }
+    raise ApiError(messages.get(status, "Não foi possível concluir a solicitação. Tente novamente."), status)
 
 
 def _json(response: httpx.Response) -> Any:
@@ -136,7 +139,7 @@ async def login(email: str, password: str) -> tuple[str, dict[str, Any] | None]:
     """POST /auth/login com `{"email", "senha"}`. Devolve (token, usuário ou None quando a API não envia o perfil)."""
     response = await _send("POST", "/auth/login", json={"email": email, "senha": password})
     if response.status_code in (400, 401, 403):
-        raise InvalidCredentials(_server_message(response) or LOGIN_FALLBACK_MESSAGE, response.status_code)
+        raise InvalidCredentials(LOGIN_FALLBACK_MESSAGE, response.status_code)
     _raise_for_status(response)
     data = _json(response)
     token = _extract_token(data)
