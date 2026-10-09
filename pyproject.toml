@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "ProjetoCl_nicaCardiologia.ProjetoCl_nicaCardiologia:app"
