@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">CardioVida</title>
+  <desc id="desc">Coração com linha de pulso</desc>
+  <path fill="none" stroke="#4A7A69" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" d="M64 112S16 84.8 16 48c0-17.7 12.8-30 29.1-30 9.4 0 16.2 4.6 18.9 11.2C66.7 22.6 73.5 18 82.9 18 99.2 18 112 30.3 112 48c0 36.8-48 64-48 64Z"/>
+  <path fill="none" stroke="#88E0C1" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" d="M27 61h19l7-17 10 34 10-25 7 8h21"/>
+</svg>
